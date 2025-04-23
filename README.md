@@ -12,6 +12,7 @@ Pain Point: Students and professionals often struggle with organizing tasks due 
 Solution: TimeWise provides a calendar-based to-do list with interactive features (e.g., color-coded priorities, deadlines, reminders) to help users see and manage their tasks at a glance.
 
 **Key Features**
+
   User Registration & Authentication
 
 Allow users to sign up with an email and password (or optionally via a third-party service, if desired).
