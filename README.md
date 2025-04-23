@@ -55,6 +55,6 @@ Tech Stack: Google Calendar or Outlook APIs with OAuth 2.0/RESTful interface.
 
 Shared calendars, task boards for multiple users.
 
-Real-time updates (e.g., WebSocket/Socket.io).
+Real-time updates (Socket.io).
 
 Tech Stack: Additional data models to handle team-based relationships, real-time communications using Socket.io, etc.
