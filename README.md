@@ -1,8 +1,8 @@
 # TimeManagement
 
 
-Project Name: TimeWise
-Goal:
+**Project Name:** TimeWise
+**Goal:**
 TimeWise is a user-friendly web application aimed at helping individuals or teams manage their tasks and schedules more efficiently. It offers a visual way to plan daily schedules, set priorities, track progress, and receive reminders, thus minimizing missed deadlines or overlapping events.
 
 The Problem & Our Approach
@@ -10,7 +10,7 @@ Pain Point: Students and professionals often struggle with organizing tasks due 
 
 Solution: TimeWise provides a calendar-based to-do list with interactive features (e.g., color-coded priorities, deadlines, reminders) to help users see and manage their tasks at a glance.
 
-Key Features
+**Key Features**
 User Registration & Authentication
 
 Allow users to sign up with an email and password (or optionally via a third-party service, if desired).
