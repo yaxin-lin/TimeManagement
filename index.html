@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Time Management Helper</title>
+  <style>
+    /* ===== Global Styles ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Microsoft YaHei", sans-serif;
+    }
+    body {
+      background-color: #FFF7ED; /* Warm background */
+      color: #3B3B3B;
+      padding: 20px;
+      overflow-x: hidden; /* Prevent horizontal scroll in fullscreen mode */
+    }
+    h1, h2, h3 {
+      font-weight: normal;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* ===== Layout Containers ===== */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .box {
+      background-color: #FFFFFF;
+      border-radius: 8px;
+      padding: 20px;
+      flex: 1 1 300px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      min-width: 280px;
+    }
+    .box h2 {
+      margin-bottom: 10px;
+      color: #F09A44; /* Warm orange */
+    }
+
+    /* ===== Input & Button Styles ===== */
+    input[type="text"], input[type="number"], textarea {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+      outline: none;
+    }
+    button {
+      background-color: #F4B982; /* Light orange */
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-right: 5px;
+    }
+    button:hover {
+      background-color: #F09A44; /* Darker orange on hover */
+    }
+
+    /* ===== Task List ===== */
+    .tasks ul {
+      list-style: none;
+    }
+    .tasks li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #FFF;
+      margin-bottom: 8px;
+      padding: 6px 10px;
+      border-left: 4px solid #F4B982;
+      border-radius: 4px;
+    }
+    .task-text {
+      flex: 1;
+      margin-right: 10px;
+      word-break: break-all;
+    }
+    .priority-low {
+      border-left-color: #91C7A3;  /* Low Priority: Green */
+    }
+    .priority-med {
+      border-left-color: #F2C94C;  /* Medium Priority: Yellow */
+    }
+    .priority-high {
+      border-left-color: #EB5757;  /* High Priority: Red */
+    }
+    .done {
+      text-decoration: line-through;
+      color: #999;
+    }
+
+    /* ===== Pomodoro ===== */
+    .pomodoro .timer {
+      font-size: 36px;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+
+    /* ===== Schedule ===== */
+    .schedule-list li {
+      margin-bottom: 6px;
+    }
+    .schedule-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 8px;
+      border-left: 4px solid #F4B982;
+      border-radius: 4px;
+      background-color: #FFF;
+    }
+
+    /* ===== Notes ===== */
+    .notes textarea {
+      resize: vertical;
+    }
+
+    /* ===== Inspirational Quote ===== */
+    .quote {
+      background-color: #FFF;
+      border-left: 4px solid #F4B982;
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      font-style: italic;
+      line-height: 1.6;
+    }
+
+    /* ===== ADHD Tools ===== */
+    .adhd-tools {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .adhd-tools h3 {
+      color: #F09A44;
+      margin-bottom: 5px;
+    }
+    .reward-display {
+      font-size: 18px;
+      color: #EB5757;
+    }
+    .time-block-suggestion {
+      background-color: #FFF;
+      border-left: 4px solid #F4B982;
+      padding: 10px;
+      border-radius: 4px;
+      margin-top: 8px;
+    }
+
+    /* ===== Buddy Tip Popup ===== */
+    .buddy-tip-popup {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #FFF;
+      border-left: 5px solid #F4B982;
+      padding: 16px;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      max-width: 250px;
+      display: none; /* hidden by default */
+      z-index: 9999; 
+    }
+    .buddy-tip-popup p {
+      margin-bottom: 10px;
+    }
+    .buddy-tip-popup button {
+      margin-right: 0;
+      float: right;
+      background-color: #EB5757;
+    }
+    .buddy-tip-popup button:hover {
+      background-color: #d73f3f;
+    }
+
+    /* ===== Fullscreen Focus Mode ===== */
+    .fullscreen-focus {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: #1a1a1a;
+      color: #fff;
+      z-index: 9999;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+    }
+    .fullscreen-clock {
+      font-size: 100px;
+      font-weight: bold;
+      margin-bottom: 40px;
+    }
+    .white-noise-buttons button {
+      margin: 0 6px 6px 0;
+    }
+    .focus-buttons {
+      margin-top: 20px;
+    }
+    .focus-buttons button {
+      margin: 0 8px;
+    }
+
+    /* ===== Mini-game ===== */
+    .minigame-container {
+      margin-top: 40px;
+      text-align: center;
+    }
+    .click-me-btn {
+      background-color: #F09A44;
+      color: #fff;
+      font-size: 18px;
+      padding: 10px 20px;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <h1 style="text-align:center; margin-bottom:20px;">Time Management</h1>
+
+  <div class="container">
+    <!-- ===== Task List ===== -->
+    <div class="box tasks">
+      <h2>Task List</h2>
+      <input type="text" id="taskInput" placeholder="Enter a task..." />
+      <select id="prioritySelect">
+        <option value="low">Low Priority</option>
+        <option value="med">Medium Priority</option>
+        <option value="high">High Priority</option>
+      </select>
+      <button id="addTaskBtn">Add Task</button>
+      <ul id="taskList"></ul>
+    </div>
+
+    <!-- ===== Pomodoro (enter fullscreen) ===== -->
+    <div class="box pomodoro">
+      <h2>Pomodoro</h2>
+      <div class="timer" id="pomodoroTimer">25:00</div>
+      <button id="startPomodoro">Start</button>
+      <button id="resetPomodoro">Reset</button>
+    </div>
+
+    <!-- ===== Schedule ===== -->
+    <div class="box schedule">
+      <h2>Schedule</h2>
+      <input type="text" id="scheduleTime" placeholder="Time (e.g. 9:00 ~ 10:00)" />
+      <input type="text" id="scheduleTask" placeholder="Task..." />
+      <button id="addScheduleBtn">Add Schedule</button>
+      <ul id="scheduleList" class="schedule-list"></ul>
+    </div>
+
+    <!-- ===== Notes ===== -->
+    <div class="box notes">
+      <h2>Notes</h2>
+      <textarea id="notesArea" rows="8" placeholder="Write down your ideas or to-do..."></textarea>
+      <button id="saveNotesBtn">Save Notes</button>
+    </div>
+
+    <!-- ===== Inspirational Quote ===== -->
+    <div class="box quote-box">
+      <h2>Inspirational Quote</h2>
+      <div class="quote" id="quoteDisplay">Click the button below for a quote</div>
+      <button id="newQuoteBtn">New Quote</button>
+    </div>
+
+    <!-- ===== ADHD Tools ===== -->
+    <div class="box adhd-tools">
+      <h2>Awards</h2>
+      <!-- Points Display -->
+      <div class="reward-display" id="rewardPointsDisplay">Points: 0</div>
+
+      <!-- Time Block Suggestion -->
+      <button id="timeBlockBtn">Random Time-block Suggestion</button>
+      <div class="time-block-suggestion" id="timeBlockSuggestion">
+        (Click the button for a suggestion)
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Buddy Tip Popup ===== -->
+  <div class="buddy-tip-popup" id="buddyTipPopup">
+    <p id="buddyTipText"></p>
+    <button id="buddyTipCloseBtn">Got it</button>
+  </div>
+
+  <!-- ===== Fullscreen Focus Mode (Pomodoro) ===== -->
+  <div class="fullscreen-focus" id="fullscreenFocus">
+    <!-- Large countdown -->
+    <div class="fullscreen-clock" id="focusClock">25:00</div>
+
+    <!-- White Noise Buttons -->
+    <div class="white-noise-buttons">
+      <button class="white-noise-btn" data-sound="meditative-rain-114484.mp3">Rain</button>
+      <button class="white-noise-btn" data-sound="the-enchanted-forest-252441.mp3">Forest</button>
+      <button class="white-noise-btn" data-sound="music-for-sleep-dreams-by-the-sea-258037.mp3">Sea</button>
+    </div>
+
+    <!-- Mini-game (Click challenge) -->
+    <div class="minigame-container">
+      <h3>Click Challenge (Earn Points in 10s)</h3>
+      <button class="click-me-btn" id="clickGameBtn">Start Mini-game</button>
+      <p id="clickGameInfo"></p>
+    </div>
+
+    <!-- Exit & Stop White Noise -->
+    <div class="focus-buttons">
+      <button id="exitFocusModeBtn">Exit Focus Mode</button>
+      <button id="stopWhiteNoiseBtn">Stop White Noise</button>
+    </div>
+  </div>
+
+  <audio id="whiteNoisePlayer" loop></audio>
+
+  <script>
+    // ========== 0. Global Data & Initialization ==========
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    let schedules = JSON.parse(localStorage.getItem("schedules")) || [];
+    let rewardPoints = parseInt(localStorage.getItem("rewardPoints") || "0");
+
+    let pomodoroTime = 25 * 60;  // 25 mins
+    let pomodoroInterval = null;
+    let isPomodoroRunning = false;
+
+    // Buddy Tips interval (5 min = 300000ms). Change for testing if needed
+    const BUDDY_TIP_INTERVAL = 300000;
+
+    // Buddy tips in English
+    const buddyTips = [
+      "Remember to drink water and keep hydrated!",
+      "Stand up and move a little, keep your body healthy!",
+      "Need to switch tasks? Give yourself a short break!",
+      "You’ve been doing great, treat yourself to a small reward!",
+      "Consider writing down your thoughts now so you don’t lose that inspiration!"
+    ];
+
+    // ========== 1. Task List ==========
+    const taskInput = document.getElementById("taskInput");
+    const prioritySelect = document.getElementById("prioritySelect");
+    const addTaskBtn = document.getElementById("addTaskBtn");
+    const taskList = document.getElementById("taskList");
+
+    function renderTasks() {
+      taskList.innerHTML = "";
+      tasks.forEach((task, index) => {
+        const li = document.createElement("li");
+        li.className = `priority-${task.priority} ${task.completed ? 'done' : ''}`;
+
+        const span = document.createElement("span");
+        span.className = "task-text";
+        span.textContent = task.text;
+        
+        // Toggle complete on click
+        span.addEventListener("click", () => {
+          if (!tasks[index].completed) {
+            tasks[index].completed = true;
+            rewardPoints += 10; // +10 points on complete
+          } else {
+            tasks[index].completed = false;
+            rewardPoints -= 10; // -10 points if undone
+            if (rewardPoints < 0) rewardPoints = 0;
+          }
+          updateRewardPoints();
+          saveAndRenderTasks();
+        });
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "Delete";
+        deleteBtn.addEventListener("click", () => {
+          if (tasks[index].completed) {
+            rewardPoints -= 10;
+            if (rewardPoints < 0) rewardPoints = 0;
+            updateRewardPoints();
+          }
+          tasks.splice(index, 1);
+          saveAndRenderTasks();
+        });
+
+        li.appendChild(span);
+        li.appendChild(deleteBtn);
+        taskList.appendChild(li);
+      });
+    }
+
+    function saveAndRenderTasks() {
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+      renderTasks();
+    }
+
+    addTaskBtn.addEventListener("click", () => {
+      const text = taskInput.value.trim();
+      const priority = prioritySelect.value;
+      if (text) {
+        tasks.push({
+          text: text,
+          priority: priority,
+          completed: false
+        });
+        taskInput.value = "";
+        prioritySelect.value = "low";
+        saveAndRenderTasks();
+      }
+    });
+
+    renderTasks();
+
+    // ========== 2. Pomodoro (Fullscreen) ==========
+    const pomodoroTimerEl = document.getElementById("pomodoroTimer");
+    const startPomodoroBtn = document.getElementById("startPomodoro");
+    const resetPomodoroBtn = document.getElementById("resetPomodoro");
+
+    // Fullscreen elements
+    const fullscreenFocus = document.getElementById("fullscreenFocus");
+    const focusClock = document.getElementById("focusClock");
+
+    function updatePomodoroDisplay() {
+      const minutes = Math.floor(pomodoroTime / 60);
+      const seconds = pomodoroTime % 60;
+      const text = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      pomodoroTimerEl.textContent = text;
+      focusClock.textContent = text;
+    }
+
+    function startPomodoroTimer() {
+      if (isPomodoroRunning) return;
+      isPomodoroRunning = true;
+      openFocusMode();
+
+      pomodoroInterval = setInterval(() => {
+        if (pomodoroTime > 0) {
+          pomodoroTime--;
+          updatePomodoroDisplay();
+        } else {
+          clearInterval(pomodoroInterval);
+          isPomodoroRunning = false;
+          alert("Time is up! Take a break.");
+          closeFocusMode();
+        }
+      }, 1000);
+    }
+
+    function resetPomodoroTimer() {
+      clearInterval(pomodoroInterval);
+      isPomodoroRunning = false;
+      pomodoroTime = 25 * 60;
+      updatePomodoroDisplay();
+      closeFocusMode();
+    }
+
+    startPomodoroBtn.addEventListener("click", startPomodoroTimer);
+    resetPomodoroBtn.addEventListener("click", resetPomodoroTimer);
+    updatePomodoroDisplay();
+
+    function openFocusMode() {
+      fullscreenFocus.style.display = "flex";
+    }
+    function closeFocusMode() {
+      fullscreenFocus.style.display = "none";
+    }
+
+    // ========== 3. Schedule ==========
+    const scheduleTime = document.getElementById("scheduleTime");
+    const scheduleTask = document.getElementById("scheduleTask");
+    const addScheduleBtn = document.getElementById("addScheduleBtn");
+    const scheduleList = document.getElementById("scheduleList");
+
+    function renderSchedules() {
+      scheduleList.innerHTML = "";
+      schedules.forEach((item, index) => {
+        const li = document.createElement("li");
+        const div = document.createElement("div");
+        div.className = "schedule-item";
+        
+        const contentSpan = document.createElement("span");
+        contentSpan.textContent = `${item.time} - ${item.task}`;
+
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "Delete";
+        delBtn.addEventListener("click", () => {
+          schedules.splice(index, 1);
+          saveAndRenderSchedules();
+        });
+
+        div.appendChild(contentSpan);
+        div.appendChild(delBtn);
+        li.appendChild(div);
+        scheduleList.appendChild(li);
+      });
+    }
+
+    function saveAndRenderSchedules() {
+      localStorage.setItem("schedules", JSON.stringify(schedules));
+      renderSchedules();
+    }
+
+    addScheduleBtn.addEventListener("click", () => {
+      const timeVal = scheduleTime.value.trim();
+      const taskVal = scheduleTask.value.trim();
+      if (timeVal && taskVal) {
+        schedules.push({
+          time: timeVal,
+          task: taskVal
+        });
+        scheduleTime.value = "";
+        scheduleTask.value = "";
+        saveAndRenderSchedules();
+      }
+    });
+
+    renderSchedules();
+
+    // ========== 4. Notes ==========
+    const notesArea = document.getElementById("notesArea");
+    const saveNotesBtn = document.getElementById("saveNotesBtn");
+
+    notesArea.value = localStorage.getItem("notes") || "";
+
+    saveNotesBtn.addEventListener("click", () => {
+      localStorage.setItem("notes", notesArea.value);
+      alert("Notes saved!");
+    });
+
+    // ========== 5. Inspirational Quote ==========
+    const quoteDisplay = document.getElementById("quoteDisplay");
+    const newQuoteBtn = document.getElementById("newQuoteBtn");
+
+    const quotes = [
+      "A journey of a thousand miles begins with a single step.",
+      "Every successful person has a painful story.",
+      "Your burden will become your gift; your pain will become your light.",
+      "Stop stopping yourself.",
+      "We are all in the gutter, but some of us are looking at the stars. — Oscar Wilde",
+      "When you stop trying, you fail."
+    ];
+
+    function getRandomQuote() {
+      const randomIndex = Math.floor(Math.random() * quotes.length);
+      return quotes[randomIndex];
+    }
+
+    newQuoteBtn.addEventListener("click", () => {
+      quoteDisplay.textContent = getRandomQuote();
+    });
+
+    // ========== 6. ADHD Tools & Points ==========
+    const rewardPointsDisplay = document.getElementById("rewardPointsDisplay");
+    function updateRewardPoints() {
+      localStorage.setItem("rewardPoints", rewardPoints);
+      rewardPointsDisplay.textContent = `Points: ${rewardPoints}`;
+    }
+    updateRewardPoints();
+
+    // Time-block Suggestions
+    const timeBlockBtn = document.getElementById("timeBlockBtn");
+    const timeBlockSuggestion = document.getElementById("timeBlockSuggestion");
+
+    const timeBlockSuggestions = [
+      "10 minutes focus + 5 minutes break, repeat 3 times",
+      "15 minutes focus + 5 minutes break, repeat 2 times",
+      "20 minutes focus + 10 minutes break, repeat 2 times",
+      "5 minutes sprint + 2 minutes rest, repeat 4 times",
+      "25 minutes focus + 5 minutes light activity, repeat 2 times"
+    ];
+
+    timeBlockBtn.addEventListener("click", () => {
+      const idx = Math.floor(Math.random() * timeBlockSuggestions.length);
+      timeBlockSuggestion.textContent = `Try: ${timeBlockSuggestions[idx]}`;
+    });
+
+    // ========== 7. Buddy Tip Popup ==========
+    const buddyTipPopup = document.getElementById("buddyTipPopup");
+    const buddyTipText = document.getElementById("buddyTipText");
+    const buddyTipCloseBtn = document.getElementById("buddyTipCloseBtn");
+
+    let buddyTipTimer = null;
+
+    function showBuddyTip() {
+      const randomIndex = Math.floor(Math.random() * buddyTips.length);
+      buddyTipText.textContent = buddyTips[randomIndex];
+      buddyTipPopup.style.display = "block";
+    }
+    function hideBuddyTip() {
+      buddyTipPopup.style.display = "none";
+    }
+
+    buddyTipCloseBtn.addEventListener("click", () => {
+      hideBuddyTip();
+      restartBuddyTipTimer();
+    });
+
+    function startBuddyTipTimer() {
+      buddyTipTimer = setTimeout(() => {
+        showBuddyTip();
+      }, BUDDY_TIP_INTERVAL);
+    }
+    function restartBuddyTipTimer() {
+      clearTimeout(buddyTipTimer);
+      startBuddyTipTimer();
+    }
+
+    startBuddyTipTimer();
+
+    // ========== 8. Fullscreen Focus Mode - White Noise ==========
+    const whiteNoisePlayer = document.getElementById("whiteNoisePlayer");
+    const stopWhiteNoiseBtn = document.getElementById("stopWhiteNoiseBtn");
+    const whiteNoiseBtns = document.querySelectorAll(".white-noise-btn");
+
+    whiteNoiseBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const soundSrc = btn.dataset.sound;
+        whiteNoisePlayer.src = soundSrc;
+        whiteNoisePlayer.play();
+      });
+    });
+
+    stopWhiteNoiseBtn.addEventListener("click", () => {
+      whiteNoisePlayer.pause();
+      whiteNoisePlayer.currentTime = 0;
+    });
+
+    // ========== 9. Mini-game (Click Challenge) ==========
+    const clickGameBtn = document.getElementById("clickGameBtn");
+    const clickGameInfo = document.getElementById("clickGameInfo");
+
+    let clickCount = 0;
+    let clickGameRunning = false;
+    let clickGameTimer = null;
+
+    clickGameBtn.addEventListener("click", () => {
+      if (clickGameRunning) return;
+      clickGameRunning = true;
+      clickCount = 0;
+      clickGameInfo.textContent = "Try to click the button as many times as you can in 10 seconds!";
+
+      clickGameBtn.textContent = "Click me! (10s left)";
+
+      // Override the button's onclick to count clicks
+      clickGameBtn.onclick = () => {
+        if (clickGameRunning) {
+          clickCount++;
+        }
+      };
+
+      let remainTime = 10;
+      clickGameTimer = setInterval(() => {
+        remainTime--;
+        clickGameBtn.textContent = `Click me! (${remainTime}s left)`;
+
+        if (remainTime <= 0) {
+          clearInterval(clickGameTimer);
+          clickGameRunning = false;
+          clickGameBtn.textContent = "Start Mini-game";
+          clickGameBtn.onclick = null;
+          evaluateClickGame();
+        }
+      }, 1000);
+    });
+
+    function evaluateClickGame() {
+      if (clickCount >= 20) {
+        rewardPoints += 20;
+        updateRewardPoints();
+        clickGameInfo.textContent = `Awesome! You clicked ${clickCount} times in 10 seconds, +20 points!`;
+      } else {
+        clickGameInfo.textContent = `You clicked ${clickCount} times in 10 seconds. (20+ clicks needed for bonus!)`;
+      }
+    }
+
+    // ========== 10. Exit Focus Mode ==========
+    const exitFocusModeBtn = document.getElementById("exitFocusModeBtn");
+    exitFocusModeBtn.addEventListener("click", () => {
+      closeFocusMode();
+    });
+  </script>
+</body>
+</html>
